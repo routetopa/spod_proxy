@@ -22,42 +22,50 @@
 #        '' close;
 #    }
 
+proxy_cache_path /tmp/nginx_cache levels=1:2 keys_zone=cache:30m max_size=250m;
+proxy_temp_path /tmp/nginx_proxy 1 2;
 
 server {
 	listen 80;
 
-	location / {
-           proxy_pass http://127.0.0.1:8000;  
-	}
+    location / {
+       proxy_pass http://127.0.0.1:8000/;
+       proxy_set_header Host $host;
+       proxy_cache cache;
+       proxy_cache_bypass $cookie_auth_tkt;
+       proxy_no_cache $cookie_auth_tkt;
+       proxy_cache_valid 30m;
+       proxy_cache_key $host$scheme$proxy_host$request_uri;
+    }
 
-        location /realtime_notification {
-           proxy_pass http://127.0.0.1:3000;
-           proxy_http_version 1.1;
-           proxy_set_header Upgrade upgrade;
-           proxy_set_header Connection close;
-        }
- 
-        location /ethersheet/ {
-           proxy_pass http://127.0.0.1:8001/;
-           proxy_http_version 1.1;
-           proxy_set_header Upgrade $http_upgrade;
-           proxy_set_header Connection 'upgrade';
-           proxy_set_header Host $host;
-           proxy_cache_bypass $http_upgrade;
-        }
+    location /realtime_notification {
+       proxy_pass http://127.0.0.1:3000;
+       proxy_http_version 1.1;
+       proxy_set_header Upgrade upgrade;
+       proxy_set_header Connection close;
+    }
 
-        location /es_client {
-           proxy_pass http://127.0.0.1:8001; 
-        }
+    location /ethersheet/ {
+       proxy_pass http://127.0.0.1:8001/;
+       proxy_http_version 1.1;
+       proxy_set_header Upgrade $http_upgrade;
+       proxy_set_header Connection 'upgrade';
+       proxy_set_header Host $host;
+       proxy_cache_bypass $http_upgrade;
+    }
 
-        location /etherpad/ {
-           proxy_pass http://127.0.0.1:9001/;
-           proxy_http_version 1.1;
-           proxy_set_header Upgrade $http_upgrade;
-           proxy_set_header Connection 'upgrade';
-           proxy_set_header Host $host;
-           proxy_cache_bypass $http_upgrade; 
-        }          
+    location /es_client {
+       proxy_pass http://127.0.0.1:8001;
+    }
+
+    location /etherpad/ {
+       proxy_pass http://127.0.0.1:9001/;
+       proxy_http_version 1.1;
+       proxy_set_header Upgrade $http_upgrade;
+       proxy_set_header Connection 'upgrade';
+       proxy_set_header Host $host;
+       proxy_cache_bypass $http_upgrade;
+    }
 
 	# Only for nginx-naxsi used with nginx-naxsi-ui : process denied requests
 	#location /RequestDenied {
