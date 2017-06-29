@@ -24,7 +24,6 @@
 
 proxy_cache_path /tmp/nginx_cache levels=1:2 keys_zone=cache:30m max_size=250m;
 proxy_temp_path /tmp/nginx_proxy 1 2;
-client_max_body_size 5M;
 
 server {
 	listen 80;
@@ -41,9 +40,13 @@ server {
 
     location /realtime_notification {
        proxy_pass http://127.0.0.1:3000;
+       #proxy_http_version 1.1;
+       #proxy_set_header Upgrade upgrade;
+       #proxy_set_header Connection close;
        proxy_http_version 1.1;
-       proxy_set_header Upgrade upgrade;
-       proxy_set_header Connection close;
+       proxy_set_header Upgrade $http_upgrade;
+       proxy_set_header Connection "upgrade";
+       proxy_set_header Host $host;
     }
 
     location /ethersheet/ {
