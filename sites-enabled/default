@@ -39,6 +39,12 @@ server {
        proxy_cache_key $host$scheme$proxy_host$request_uri;
     }
 
+    location /ow_plugins/ode/datalet_images/ {
+        proxy_pass http://127.0.0.1:8000/ow_plugins/ode/datalet_images/;
+        add_header 'Cache-Control' 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
+        expires off;
+    }
+
     location /realtime_notification {
        proxy_pass http://127.0.0.1:3000;
        #proxy_http_version 1.1;
